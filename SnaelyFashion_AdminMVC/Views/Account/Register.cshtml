@@ -1,0 +1,59 @@
+﻿@using SnaelyFashion_Models.DTO.ApplicationUser_
+@model RegisterationRequestDTO
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-black bg-dark ml-0 py-4">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="py-2 text-white">Register</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <div class="row">
+            <div class="col-md-12">
+                <section>
+                    <form id="account" method="post">
+                        <h3 class="border-bottom pb-3 mb-4 text-secondary text-center">
+                            Use a local account to log in.
+                        </h3>
+                        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="@Model.UserName" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                            <label asp-for="@Model.UserName" class="form-label">Email</label>
+                            <span asp-validation-for="@Model.UserName" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="@Model.FirstName" class="form-control" autocomplete="FirstName" aria-required="true" placeholder="FirstName" />
+                            <label asp-for="@Model.FirstName" class="form-label">FirstName</label>
+                            <span asp-validation-for="@Model.FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="@Model.LastName" class="form-control" autocomplete="LastName" aria-required="true" placeholder="LastName" />
+                            <label asp-for="@Model.LastName" class="form-label">LastName</label>
+                            <span asp-validation-for="@Model.LastName" class="text-danger"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="@Model.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Password" />
+                            <label asp-for="@Model.Password" class="form-label">Password</label>
+                            <span asp-validation-for="@Model.Password" class="text-danger"></span>
+                        </div>
+                      
+                        <div>
+                            <button id="Register-submit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+                        </div>
+                        <div class="d-flex justify-content-between pt-2">
+                            <div>
+                                <button class="w-100 btn text-bg-light btn-lg btn-secondary">
+                                    <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+                                </button>
+                            </div>
+                        </div>
+                       
+                    </form>
+                </section>
+            </div>
+
+        </div>
+    </div>
+</div>

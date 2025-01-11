@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35521.163
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnaelyFashion_WebAPI", "SnaelyFashion_WebAPI\SnaelyFashion_WebAPI.csproj", "{6A147561-4DA3-4F3E-883D-82578695F2CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnaelyFashion_Models", "SnaelyFashion_Models\SnaelyFashion_Models.csproj", "{579DDF53-4FA4-4B68-9DB0-C5C41242FF1B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnaelyFashion_Utility", "SnaelyFashion_Utility\SnaelyFashion_Utility.csproj", "{0E28F2F3-D6D5-4DA2-85A3-3E0C75906CF0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnaelyFashion_AdminMVC", "SnaelyFashion_AdminMVC\SnaelyFashion_AdminMVC.csproj", "{43A39963-8539-4865-BEE2-FA224F2E2D12}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6A147561-4DA3-4F3E-883D-82578695F2CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A147561-4DA3-4F3E-883D-82578695F2CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A147561-4DA3-4F3E-883D-82578695F2CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A147561-4DA3-4F3E-883D-82578695F2CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{579DDF53-4FA4-4B68-9DB0-C5C41242FF1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{579DDF53-4FA4-4B68-9DB0-C5C41242FF1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{579DDF53-4FA4-4B68-9DB0-C5C41242FF1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{579DDF53-4FA4-4B68-9DB0-C5C41242FF1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E28F2F3-D6D5-4DA2-85A3-3E0C75906CF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E28F2F3-D6D5-4DA2-85A3-3E0C75906CF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E28F2F3-D6D5-4DA2-85A3-3E0C75906CF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E28F2F3-D6D5-4DA2-85A3-3E0C75906CF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43A39963-8539-4865-BEE2-FA224F2E2D12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43A39963-8539-4865-BEE2-FA224F2E2D12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43A39963-8539-4865-BEE2-FA224F2E2D12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43A39963-8539-4865-BEE2-FA224F2E2D12}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
