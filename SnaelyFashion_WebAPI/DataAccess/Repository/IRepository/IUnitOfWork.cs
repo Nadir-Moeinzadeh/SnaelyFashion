@@ -6,9 +6,9 @@
         IProductRepository Product { get; }
 
         IProductSizeRepository ProductSize { get; }
-
+        IBlogPostImageRepository BlogPostImage{ get; }
         IProductColorRepository ProductColor { get; }
-
+        IBlogPostRepository BlogPost { get; }
         IApplicationUserRepository ApplicationUser { get; }
         IShoppingCartRepository ShoppingCart { get; }
         ISubCategoryRepository SubCategory { get; }

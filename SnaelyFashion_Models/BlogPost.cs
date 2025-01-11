@@ -18,6 +18,7 @@ namespace SnaelyFashion_Models
         public string Description { get; set; }
         [Required]
 
+        public DateTime CreatedDate { get; set; }
         public List<BlogPostImage>? blogPostImages { get; set; }
 
       

@@ -1,8 +1,60 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@using SnaelyFashion_Models
+@model IEnumerable<BlogPost>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+
+
+<div class="row pb-3">
+    <div class="row pb-3">
+        <div class="col-6">
+        </div>
+        <div class="col-6 text-end">
+            <a asp-controller="Home" asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i>  Post New BlogPost
+            </a>
+        </div>
+    </div>
+    @foreach (var blogpost in Model)
+
+    {
+        <div class="col-lg-3 col-sm-6">
+            <div class="row p-2">
+                <div class="col-12 p-1">
+                    <div class="card border-0 p-3 shadow  border-top border-5 rounded">
+                        @if (blogpost.blogPostImages != null && blogpost.blogPostImages.Count() > 0)
+                        {
+                            <img src="@blogpost.blogPostImages.FirstOrDefault().ImageUrl" class="card-img-top rounded" />
+                        }
+
+                        else
+                        {
+                            <img src="https://placehold.co/500x600/png" class="card-img-top rounded" />
+                        }
+
+                        <div class="card-body pb-0">
+                            <div class="pl-1">
+                                <p class="card-title h5 text-dark opacity-75 text-uppercase text-center">@blogpost.Title</p>
+                                <p class="card-title text-warning text-center">Posted On <b>@blogpost.CreatedDate</b></p>
+                            </div>
+                        
+                        </div>
+                        <div>
+                            <a asp-action="UpSert"
+                               asp-route-id="@blogpost.Id"
+                               class="btn btn-primary bg-gradient border-0 form-control">
+                                Edit
+                            </a>
+                        </div>
+                        <div>
+                            <a asp-action="Delete" asp-route-id="@blogpost.Id"
+                               
+                               class="btn btn-danger bg-gradient border-0 form-control">
+                                Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>

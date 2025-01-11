@@ -10,6 +10,9 @@ namespace SnaelyFashion_WebAPI.DataAccess.Repository
         public IProductColorRepository ProductColor { get; private set; }
         public IProductSizeRepository ProductSize { get; private set; }
         public IApplicationUserRepository ApplicationUser { get; private set; }
+        public IBlogPostRepository BlogPost { get; private set; }
+
+        public IBlogPostImageRepository BlogPostImage { get; private set; }
         public IProductRepository Product { get; private set; }
         public IShoppingCartRepository ShoppingCart { get; private set; }
         public IOrderHeaderRepository OrderHeader { get; private set; }
@@ -31,6 +34,8 @@ namespace SnaelyFashion_WebAPI.DataAccess.Repository
             OrderHeader = new OrderHeaderRepository(_db);
             OrderDetail = new OrderDetailRepository(_db);
             ProfilePicture = new ProfilePictureRepository(_db);
+            BlogPost = new BlogPostRepository(_db); 
+            BlogPostImage = new BlogPostImageRepository(_db);
         }
 
         public async Task SaveAsync()
