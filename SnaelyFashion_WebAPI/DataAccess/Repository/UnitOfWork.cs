@@ -20,6 +20,7 @@ namespace SnaelyFashion_WebAPI.DataAccess.Repository
         public IProductImageRepository ProductImage { get; private set; }
         public ISubCategoryRepository SubCategory { get; private set; }
         public IProfilePictureRepository ProfilePicture { get; private set; }
+        public IReviewRepository Review { get; private set; }
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
@@ -36,6 +37,7 @@ namespace SnaelyFashion_WebAPI.DataAccess.Repository
             ProfilePicture = new ProfilePictureRepository(_db);
             BlogPost = new BlogPostRepository(_db); 
             BlogPostImage = new BlogPostImageRepository(_db);
+            Review = new ReviewRepository(_db); 
         }
 
         public async Task SaveAsync()

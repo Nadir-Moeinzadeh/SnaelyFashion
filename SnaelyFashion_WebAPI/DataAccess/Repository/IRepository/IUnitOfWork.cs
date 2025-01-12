@@ -4,7 +4,7 @@
     {
         ICategoryRepository Category { get; }
         IProductRepository Product { get; }
-
+        IReviewRepository Review { get; }
         IProductSizeRepository ProductSize { get; }
         IBlogPostImageRepository BlogPostImage{ get; }
         IProductColorRepository ProductColor { get; }

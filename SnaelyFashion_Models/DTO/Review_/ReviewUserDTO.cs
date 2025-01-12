@@ -8,7 +8,7 @@ namespace SnaelyFashion_Models.DTO.Review_
 {
     public class ReviewUserDTO
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string FullName { get; set; }
         public string ProfilePicURL { get; set; }
     }

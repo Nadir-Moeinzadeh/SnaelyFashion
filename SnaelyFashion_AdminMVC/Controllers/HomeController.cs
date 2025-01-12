@@ -28,8 +28,8 @@ namespace SnaelyFashion_AdminMVC.Controllers
 
         public IActionResult Index()
         {
-            IEnumerable<BlogPost> productList = _unitOfWork.BlogPost.GetAll(includeProperties: "blogPostImages").OrderBy(x=>x.CreatedDate).Reverse();
-            return View(productList);
+            IEnumerable<BlogPost> blogpostList = _unitOfWork.BlogPost.GetAll(includeProperties: "blogPostImages").OrderBy(x=>x.CreatedDate).Reverse();
+            return View(blogpostList);
         }
 
         public async Task<IActionResult> Create() 

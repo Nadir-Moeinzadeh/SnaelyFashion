@@ -15,7 +15,7 @@ namespace SnaelyFashion_Models
         [Required]
         public string LastName { get; set; }
 
-        public string? ProfilePictureURL { get; set; }
+        public ProfilePicture ProfilePicture { get; set; }
 
         public string? StreetAddress { get; set; }
         public string? City { get; set; }

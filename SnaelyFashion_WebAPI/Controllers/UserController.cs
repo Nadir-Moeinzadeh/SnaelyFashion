@@ -8,6 +8,7 @@ using SnaelyFashion_Models;
 using SnaelyFashion_Models.DTO.ApplicationUser_;
 using SnaelyFashion_Models.DTO.Profile_;
 using SnaelyFashion_WebAPI.DataAccess.Data;
+using SnaelyFashion_WebAPI.DataAccess.Repository.IRepository;
 using System.Security.Claims;
 
 namespace SnaelyFashion_WebAPI.Controllers
@@ -21,12 +22,14 @@ namespace SnaelyFashion_WebAPI.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public UserController(UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment,ApplicationDbContext dbContext)
+        private readonly IUnitOfWork _unitOfWork;
+        public UserController(UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment,ApplicationDbContext dbContext, IUnitOfWork unitOfWork)
         {
             _context = dbContext;
             _response = new();
             _userManager = userManager;
             _webHostEnvironment = webHostEnvironment;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet("GetUserInfo")]
@@ -40,7 +43,7 @@ namespace SnaelyFashion_WebAPI.Controllers
 
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-                var user = await _context.ApplicationUsers.Where(x => x.Id == userId).FirstOrDefaultAsync();
+                var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId, includeProperties: "ProfilePicture");
 
                 if (user == null) 
                 {
@@ -50,7 +53,8 @@ namespace SnaelyFashion_WebAPI.Controllers
 
                 var ProfileInfo = new ProfileDTO()
                 {
-                   ID = userId,
+                    ID = userId,
+                    FullName = $"{user.FirstName} {user.LastName}",
                     UserName = user.UserName,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
@@ -59,12 +63,14 @@ namespace SnaelyFashion_WebAPI.Controllers
                     PhoneNumber = user.PhoneNumber,
                     State = user.State,
                     StreetAddress = user.StreetAddress,
-                    ProfilePictureURL = user.ProfilePictureURL
+                    ProfilePictureURL = user.ProfilePicture.ImageUrl,
                 };
 
                 _response.IsSuccess = true;
                 _response.Result = ProfileInfo;
                 _response.StatusCode = System.Net.HttpStatusCode.OK;
+
+
 
                 return Ok(_response);
             }
@@ -78,7 +84,7 @@ namespace SnaelyFashion_WebAPI.Controllers
         }
 
         [HttpPut("EditUserInfo")]
-        public async Task<APIResponse> EditUserInfo([FromBody]ProfileEditDTO editDTO) 
+        public async Task<APIResponse> EditUserInfo([FromBody]ProfileEditDTO editDTO,IFormFile? file) 
         {
             try
             {
@@ -87,13 +93,14 @@ namespace SnaelyFashion_WebAPI.Controllers
 
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-                var user = await _context.ApplicationUsers.Where(x => x.Id == userId).FirstOrDefaultAsync();
+                var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId, includeProperties: "ProfilePicture");
 
 
 
                 var ProfileInfo = new ProfileDTO()
                 {
                     ID = userId,
+                    FullName = $"{user.FirstName} {user.LastName}",
                     UserName = user.UserName,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
@@ -102,7 +109,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                     PhoneNumber = user.PhoneNumber,
                     State = user.State,
                     StreetAddress = user.StreetAddress,
-                    ProfilePictureURL = user.ProfilePictureURL
+                    ProfilePictureURL = user.ProfilePicture.ImageUrl
                 };
 
                 if (editDTO.FirstName != ProfileInfo.FirstName) { ProfileInfo.FirstName = editDTO.FirstName; }
@@ -131,6 +138,55 @@ namespace SnaelyFashion_WebAPI.Controllers
                 _response.Result = editDTO;
                 _response.StatusCode = System.Net.HttpStatusCode.OK;
 
+
+
+
+
+
+
+
+                string wwwRootPath = _webHostEnvironment.WebRootPath;
+                if (file != null)
+                {
+
+
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string userPath = @"images\users\user-" + user.Id;
+                    string finalPath = Path.Combine(wwwRootPath, userPath);
+
+                    if (!Directory.Exists(finalPath))
+                        Directory.CreateDirectory(finalPath);
+
+                    using (var fileStream = new FileStream(Path.Combine(finalPath, fileName), FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+
+                    ProfilePicture profilepicture = new()
+                    {
+                        ImageUrl = @"\" + userPath + @"\" + fileName,
+                        ApplicationUserId = user.Id,
+                    };
+                    _unitOfWork.ProfilePicture.Add(profilepicture);
+                    _unitOfWork.Save();
+
+                    if (user.ProfilePicture == null)
+                        user.ProfilePicture = new ProfilePicture();
+
+                    user.ProfilePicture=profilepicture;
+                   
+
+
+
+                    _unitOfWork.ApplicationUser.UpdateAsync(user);
+
+                    _unitOfWork.Save();
+
+
+
+                }
+
+
                 return _response;
             }
             catch (Exception ex)
@@ -142,6 +198,129 @@ namespace SnaelyFashion_WebAPI.Controllers
             return _response;
 
         }
+
+
+
+        [HttpPut("UploadProfilePicture")]
+        public async Task<APIResponse> UploadProfilePicture( IFormFile? file)
+        {
+            try
+            {
+
+
+
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId, includeProperties: "ProfilePicture");
+                string wwwRootPath = _webHostEnvironment.WebRootPath;
+                if (file != null)
+                {
+
+
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string userPath = @"images\users\user-" + user.Id;
+                    string finalPath = Path.Combine(wwwRootPath, userPath);
+
+                    if (!Directory.Exists(finalPath))
+                        Directory.CreateDirectory(finalPath);
+
+                    using (var fileStream = new FileStream(Path.Combine(finalPath, fileName), FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+
+                    ProfilePicture profilepicture = new()
+                    {
+                        ImageUrl = @"\" + userPath + @"\" + fileName,
+                        ApplicationUserId = user.Id,
+                    };
+                    _unitOfWork.ProfilePicture.Add(profilepicture);
+                    _unitOfWork.Save();
+
+                    if (user.ProfilePicture == null)
+                        user.ProfilePicture = new ProfilePicture();
+
+                    user.ProfilePicture = profilepicture;
+
+
+
+
+                    _unitOfWork.ApplicationUser.UpdateAsync(user);
+
+                    _unitOfWork.Save();
+
+
+
+                }
+
+
+                return _response;
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+
+        }
+
+
+        [HttpDelete("DeleteProfilePicture")]
+        public async Task<APIResponse> DeleteProfilePictureAsync()
+        {
+
+            try
+            {
+
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId, includeProperties: "ProfilePicture");
+
+
+
+                var imageToBeDeleted = user.ProfilePicture;
+                if (imageToBeDeleted == null) 
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = System.Net.HttpStatusCode.NotFound;
+
+                }
+
+                if (imageToBeDeleted != null)
+                {
+                    if (!string.IsNullOrEmpty(imageToBeDeleted.ImageUrl))
+                    {
+                        var oldImagePath =
+                                       Path.Combine(_webHostEnvironment.WebRootPath,
+                                       imageToBeDeleted.ImageUrl.TrimStart('\\'));
+
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+
+                    _unitOfWork.ProfilePicture.Remove(imageToBeDeleted);
+                    _unitOfWork.Save();
+                    _response.IsSuccess = true;
+                    _response.StatusCode = System.Net.HttpStatusCode.NoContent;
+
+                }
+            }
+            catch (Exception ex) 
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+
+            return _response;
+        }
+
+
+
 
     }
 }
