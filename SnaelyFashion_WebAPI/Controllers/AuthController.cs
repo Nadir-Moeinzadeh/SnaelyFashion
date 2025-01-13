@@ -39,12 +39,13 @@ namespace SnaelyFashion_WebAPI.Controllers
             var loginResponse = await _userRepo.Login(model);
 
             var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
-
+            var _user = await _userManager.FindByNameAsync(model.Username);
             if (result.Succeeded) 
             {
                 var user = loginResponse.User;
                 var role = user.Roles.FirstOrDefault();
                 loginResponse.role = role;
+                _signInManager.SignInAsync(_user, false, "Bearer");
             }
 
             if (loginResponse.User == null || string.IsNullOrEmpty(loginResponse.Token))
