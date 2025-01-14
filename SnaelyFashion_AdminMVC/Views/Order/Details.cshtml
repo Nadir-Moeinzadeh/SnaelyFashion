@@ -30,10 +30,8 @@
                                 <div class="col-9">
                                    @*  @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
                                     { *@
-                                        <input asp-for="OrderHeader.FirstName" type="text" class="form-control" />
-                                        <span asp-validation-for="OrderHeader.FirstName" class="text-danger"></span>
-                                    <input asp-for="OrderHeader.LastName" type="text" class="form-control" />
-                                    <span asp-validation-for="OrderHeader.LastName" class="text-danger"></span>
+                                        <input asp-for="OrderHeader.Name" type="text" class="form-control" />
+                                        <span asp-validation-for="OrderHeader.Name" class="text-danger"></span>
                                    @*  }
                                     else
                                     {
@@ -241,7 +239,7 @@
                                 </li>
                             </ul>
 
-                            @if (Model.OrderHeader.PaymentStatus == SD.PaymentMethod_Cash &&
+                            @if (Model.OrderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment &&
                             Model.OrderHeader.OrderStatus == SD.StatusShipped)
                             {
                                 <button type="submit" class="btn btn-success form-control my-1">Pay Now</button>

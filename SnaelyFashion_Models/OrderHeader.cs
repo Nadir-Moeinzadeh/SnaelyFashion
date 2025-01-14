@@ -45,9 +45,7 @@ namespace SnaelyFashion_Models
         [Required]
         public string PostalCode { get; set; }
         [Required]
-        public string FirstName { get; set; }
-        [Required]
-        public string LastName { get; set; }
+        public string Name { get; set; }
 
 
     }

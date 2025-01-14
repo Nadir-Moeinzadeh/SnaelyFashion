@@ -42,8 +42,7 @@ namespace SnaelyFashion_AdminMVC.Controllers
         public async Task<IActionResult> UpdateOrderDetail()
         {
             var orderHeaderFromDb =await _unitOfWork.OrderHeader.GetAsync(u => u.Id == OrderVM.OrderHeader.Id);
-            orderHeaderFromDb.FirstName = OrderVM.OrderHeader.FirstName;
-            orderHeaderFromDb.LastName = OrderVM.OrderHeader.LastName;
+            orderHeaderFromDb.Name = OrderVM.OrderHeader.Name;
             orderHeaderFromDb.PhoneNumber = OrderVM.OrderHeader.PhoneNumber;
             orderHeaderFromDb.StreetAddress = OrderVM.OrderHeader.StreetAddress;
             orderHeaderFromDb.City = OrderVM.OrderHeader.City;
@@ -87,7 +86,7 @@ namespace SnaelyFashion_AdminMVC.Controllers
             orderHeader.Carrier = OrderVM.OrderHeader.Carrier;
             orderHeader.OrderStatus = SD.StatusShipped;
             orderHeader.ShippingDate = DateTime.Now;
-            if (orderHeader.PaymentStatus == SD.PaymentMethod_Cash)
+            if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
             {
                 orderHeader.PaymentDueDate = DateTime.Now.AddDays(30);
             }
@@ -179,7 +178,7 @@ namespace SnaelyFashion_AdminMVC.Controllers
         {
 
             OrderHeader orderHeader =await _unitOfWork.OrderHeader.GetAsync(u => u.Id == orderHeaderId);
-            if (orderHeader.PaymentStatus == SD.PaymentMethod_Cash)
+            if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
             {
 
 
@@ -234,7 +233,7 @@ namespace SnaelyFashion_AdminMVC.Controllers
             switch (status)
             {
                 case "pending":
-                    objOrderHeaders = objOrderHeaders.Where(u => u.PaymentStatus == SD.PaymentMethod_Cash);
+                    objOrderHeaders = objOrderHeaders.Where(u => u.PaymentStatus == SD.PaymentStatusDelayedPayment);
                     break;
                 case "inprocess":
                     objOrderHeaders = objOrderHeaders.Where(u => u.OrderStatus == SD.StatusInProcess);

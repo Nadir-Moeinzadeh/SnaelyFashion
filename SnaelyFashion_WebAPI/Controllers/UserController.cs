@@ -34,11 +34,6 @@ namespace SnaelyFashion_WebAPI.Controllers
 
         [HttpGet("GetUserInfo")]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> GetUserInfo()
         {
             string profilepicURL="";
@@ -101,11 +96,6 @@ namespace SnaelyFashion_WebAPI.Controllers
         }
 
         [HttpPut("EditUserInfo")]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<APIResponse> EditUserInfo([FromBody]ProfileEditDTO editDTO) 
         {
             string profilepicURL = "";
@@ -188,11 +178,6 @@ namespace SnaelyFashion_WebAPI.Controllers
 
 
         [HttpPut("UploadProfilePicture")]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<APIResponse> UploadProfilePicture( IFormFile? file)
         {
             try
@@ -266,11 +251,6 @@ namespace SnaelyFashion_WebAPI.Controllers
 
 
         [HttpDelete("DeleteProfilePicture")]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<APIResponse> DeleteProfilePictureAsync()
         {
 
