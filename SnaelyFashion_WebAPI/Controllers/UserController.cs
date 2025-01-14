@@ -15,7 +15,7 @@ namespace SnaelyFashion_WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = "Bearer")]
+    
     public class UserController : ControllerBase
     {
         protected APIResponse _response;
@@ -33,29 +33,17 @@ namespace SnaelyFashion_WebAPI.Controllers
         }
 
         [HttpGet("GetUserInfo")]
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        
         public async Task<ActionResult<APIResponse>> GetUserInfo()
         {
-            string profilepicURL="";
             try
             {
                 //var user = await _userManager.GetUserAsync(User);
 
-               
+
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-                var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId);
-                var userimage =await _unitOfWork.ProfilePicture.GetAsync(x=>x.ApplicationUserId == userId);
-                if (userimage != null) 
-                {
-                     profilepicURL = userimage.ImageUrl;
-                }
-                if (userimage == null)
-                {
-                    profilepicURL = "";
-                }
-
-
+                var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId, includeProperties: "ProfilePicture");
 
                 if (user == null) 
                 {
@@ -75,7 +63,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                     PhoneNumber = user.PhoneNumber,
                     State = user.State,
                     StreetAddress = user.StreetAddress,
-                    ProfilePictureURL = profilepicURL,
+                    ProfilePictureURL = user.ProfilePicture.ImageUrl,
                 };
 
                 _response.IsSuccess = true;
@@ -96,9 +84,8 @@ namespace SnaelyFashion_WebAPI.Controllers
         }
 
         [HttpPut("EditUserInfo")]
-        public async Task<APIResponse> EditUserInfo([FromBody]ProfileEditDTO editDTO) 
+        public async Task<APIResponse> EditUserInfo([FromBody]ProfileEditDTO editDTO,IFormFile? file) 
         {
-            string profilepicURL = "";
             try
             {
                 
@@ -106,17 +93,7 @@ namespace SnaelyFashion_WebAPI.Controllers
 
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-                var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId);
-                var userimage = await _unitOfWork.ProfilePicture.GetAsync(x => x.ApplicationUserId == userId);
-                
-                if (userimage != null)
-                {
-                    profilepicURL = userimage.ImageUrl;
-                }
-                if (userimage == null)
-                {
-                    profilepicURL = "";
-                }
+                var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId, includeProperties: "ProfilePicture");
 
 
 
@@ -132,7 +109,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                     PhoneNumber = user.PhoneNumber,
                     State = user.State,
                     StreetAddress = user.StreetAddress,
-                    ProfilePictureURL = profilepicURL
+                    ProfilePictureURL = user.ProfilePicture.ImageUrl
                 };
 
                 if (editDTO.FirstName != ProfileInfo.FirstName) { ProfileInfo.FirstName = editDTO.FirstName; }
@@ -163,6 +140,53 @@ namespace SnaelyFashion_WebAPI.Controllers
 
 
 
+
+
+
+
+
+                string wwwRootPath = _webHostEnvironment.WebRootPath;
+                if (file != null)
+                {
+
+
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string userPath = @"images\users\user-" + user.Id;
+                    string finalPath = Path.Combine(wwwRootPath, userPath);
+
+                    if (!Directory.Exists(finalPath))
+                        Directory.CreateDirectory(finalPath);
+
+                    using (var fileStream = new FileStream(Path.Combine(finalPath, fileName), FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+
+                    ProfilePicture profilepicture = new()
+                    {
+                        ImageUrl = @"\" + userPath + @"\" + fileName,
+                        ApplicationUserId = user.Id,
+                    };
+                    _unitOfWork.ProfilePicture.Add(profilepicture);
+                    _unitOfWork.Save();
+
+                    if (user.ProfilePicture == null)
+                        user.ProfilePicture = new ProfilePicture();
+
+                    user.ProfilePicture=profilepicture;
+                   
+
+
+
+                    _unitOfWork.ApplicationUser.UpdateAsync(user);
+
+                    _unitOfWork.Save();
+
+
+
+                }
+
+
                 return _response;
             }
             catch (Exception ex)
@@ -188,7 +212,6 @@ namespace SnaelyFashion_WebAPI.Controllers
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId, includeProperties: "ProfilePicture");
-                var userprofilepic = user.ProfilePicture;   
                 string wwwRootPath = _webHostEnvironment.WebRootPath;
                 if (file != null)
                 {
@@ -205,12 +228,6 @@ namespace SnaelyFashion_WebAPI.Controllers
                     {
                         file.CopyTo(fileStream);
                     }
-                    if (userprofilepic != null) 
-                    {
-                        _unitOfWork.ProfilePicture.Remove(userprofilepic);
-                        _unitOfWork.Save();
-                    }
-
 
                     ProfilePicture profilepicture = new()
                     {

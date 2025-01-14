@@ -49,14 +49,14 @@ namespace SnaelyFashion_WebAPI.DataAccess.Repository
 
         public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
         {
-            var user = await _db.ApplicationUsers
+            var user =await _db.ApplicationUsers
                 .FirstOrDefaultAsync(u => u.UserName.ToLower() == loginRequestDTO.Username.ToLower());
 
-
+            
 
             bool isValid = await _userManager.CheckPasswordAsync(user, loginRequestDTO.Password);
 
-
+          
 
 
 
@@ -68,13 +68,13 @@ namespace SnaelyFashion_WebAPI.DataAccess.Repository
                     User = null
                 };
             }
-
+           
             //if user was found it generates JWT Token
-
+          
             var roles = await _userManager.GetRolesAsync(user);
             var roleslist = roles.ToList();
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_secretKey);
+            var key = Encoding.ASCII.GetBytes(_secretKey);
             var _role = roleslist.FirstOrDefault();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -91,46 +91,12 @@ namespace SnaelyFashion_WebAPI.DataAccess.Repository
             LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
             {
                 Token = tokenHandler.WriteToken(token),
-                User = new UserDTO() { ID = user.Id, UserName = user.UserName, FirstName = user.FirstName, LastName = user.LastName, Roles = roleslist },
-                role = _role.ToString()
+                User = new UserDTO() { ID=user.Id,UserName=user.UserName,FirstName=user.FirstName,LastName=user.LastName,Roles=roleslist},
+                role=_role.ToString()
             };
-
+           
             return loginResponseDTO;
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         public async Task<UserDTO> Register(RegisterationRequestDTO registerationRequestDTO)
         {

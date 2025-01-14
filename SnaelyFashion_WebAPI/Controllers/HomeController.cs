@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +7,6 @@ using SnaelyFashion_Models;
 using SnaelyFashion_Models.DTO.Blogposts_;
 using SnaelyFashion_Models.DTO.Product_;
 using SnaelyFashion_Models.DTO.Review_;
-using SnaelyFashion_Utility;
 using SnaelyFashion_WebAPI.DataAccess.Data;
 using SnaelyFashion_WebAPI.DataAccess.Repository.IRepository;
 using System.Net;
@@ -35,7 +33,7 @@ namespace SnaelyFashion_WebAPI.Controllers
             _mapper = mapper;
         }
 
-        
+
         [HttpGet("Get3ofBlogposts")]
         [ResponseCache(CacheProfileName = "Default30")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
