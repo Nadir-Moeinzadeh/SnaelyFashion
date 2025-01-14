@@ -14,6 +14,7 @@ using SnaelyFashion_WebAPI.DataAccess.Repository.IRepository;
 using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using SnaelyFashion_Models.DTO.ShoppingCart_;
 
 namespace SnaelyFashion_WebAPI.Controllers
 {
@@ -356,14 +357,14 @@ namespace SnaelyFashion_WebAPI.Controllers
 
 
 
-        [HttpGet("{id:int}", Name = "GetProduct")]
+        [HttpGet("{id:int}", Name = "Details")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
        
-        public async Task<ActionResult<APIResponse>> GetProduct(int id)
+        public async Task<ActionResult<APIResponse>> Details(int id)
         {
             
 
@@ -411,10 +412,6 @@ namespace SnaelyFashion_WebAPI.Controllers
                     reviewslist.Add(reviewDTO);
                 }
 
-
-
-
-
                 var productDTO = new ProductDTO
                 {
                     Id = id,
@@ -450,6 +447,97 @@ namespace SnaelyFashion_WebAPI.Controllers
             return _response;
         }
 
+
+
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [HttpPost("{id:int}", Name = "AddToCart")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<APIResponse>> AddToCart(int id,[FromBody]ShoppingCartItemDTO cartDTO) 
+        {
+            try 
+            {
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+                ShoppingCart cartFromDb =  _unitOfWork.ShoppingCart.Get(u=>u.ApplicationUserId == userId && u.ProductId==id);
+
+
+                if (cartFromDb != null)
+                {
+                    //shopping cart exists
+                    cartFromDb.Count += cartDTO.Count;
+                    cartFromDb.Color = cartDTO.Color;
+                    cartFromDb.Size = cartDTO.Size;
+                    _unitOfWork.ShoppingCart.Update(cartFromDb);
+                    _unitOfWork.Save();
+                }
+                else
+                {
+                    ShoppingCart newshoppingcart = new ShoppingCart 
+                    { 
+                        ApplicationUserId = userId,
+                        ProductId = id,
+                        Size = cartDTO.Size,
+                        Color = cartDTO.Color,
+                        Count = cartDTO.Count,
+                        Price = cartDTO.Price,
+
+                    };
+
+
+                    //add cart record
+                    _unitOfWork.ShoppingCart.Add(newshoppingcart);
+                    _unitOfWork.Save();
+                    HttpContext.Session.SetInt32(SD.SessionCart,
+                    _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == userId).Count());
+                }
+
+                _response.Result = cartDTO;
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        [Authorize(AuthenticationSchemes = "Bearer")]
         [HttpPost("{id:int}", Name = "AddReview")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

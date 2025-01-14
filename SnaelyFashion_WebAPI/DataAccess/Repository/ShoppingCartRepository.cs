@@ -11,6 +11,13 @@ namespace SnaelyFashion_WebAPI.DataAccess.Repository
         {
             _db = db;
         }
+
+        public void Update(ShoppingCart cart)
+        {
+            _db.ShoppingCarts.Update(cart);
+            _db.SaveChanges();
+        }
+
         public async Task UpdateAsync(ShoppingCart obj)
         {
             _db.ShoppingCarts.Update(obj);

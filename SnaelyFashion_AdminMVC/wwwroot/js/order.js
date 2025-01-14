@@ -31,7 +31,8 @@ function loadDataTable(status) {
         "ajax": { url: '/order/getall?status=' + status },
         "columns": [
             { data: 'id', "width": "5%" },
-            { data: 'name', "width": "25%" },
+            { data: 'firstname', "width": "10%" },
+            { data: 'lastname', "width": "15%" },
             { data: 'phoneNumber', "width": "20%" },
             { data: 'applicationUser.email', "width": "20%" },
             { data: 'orderStatus', "width": "10%" },
