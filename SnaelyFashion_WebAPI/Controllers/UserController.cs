@@ -15,7 +15,7 @@ namespace SnaelyFashion_WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public class UserController : ControllerBase
     {
         protected APIResponse _response;
@@ -41,6 +41,7 @@ namespace SnaelyFashion_WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> GetUserInfo()
         {
+            string profilepicURL = null;
             try
             {
                 //var user = await _userManager.GetUserAsync(User);
@@ -49,7 +50,15 @@ namespace SnaelyFashion_WebAPI.Controllers
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId, includeProperties: "ProfilePicture");
-
+                var userimage = await _unitOfWork.ProfilePicture.GetAsync(x => x.ApplicationUserId == userId);
+                if (userimage != null)
+                {
+                    profilepicURL = userimage.ImageUrl;
+                }
+                if (userimage == null)
+                {
+                    profilepicURL = "";
+                }
                 if (user == null) 
                 {
                     return NotFound();
@@ -68,7 +77,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                     PhoneNumber = user.PhoneNumber,
                     State = user.State,
                     StreetAddress = user.StreetAddress,
-                    ProfilePictureURL = user.ProfilePicture.ImageUrl,
+                    ProfilePictureURL = profilepicURL,
                 };
 
                 _response.IsSuccess = true;
@@ -94,8 +103,9 @@ namespace SnaelyFashion_WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<APIResponse> EditUserInfo([FromBody]ProfileEditDTO editDTO) 
+        public async Task<APIResponse> EditUserInfo([FromBody]ProfileEditDTO editDTO)
         {
+            string profilepicURL = null;
             try
             {
                 
@@ -104,8 +114,20 @@ namespace SnaelyFashion_WebAPI.Controllers
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId, includeProperties: "ProfilePicture");
+                var userimage = await _unitOfWork.ProfilePicture.GetAsync(x => x.ApplicationUserId == userId);
 
-
+                if (userimage != null)
+                {
+                    profilepicURL = userimage.ImageUrl;
+                }
+                if (userimage == null)
+                {
+                    profilepicURL = "";
+                }
+                if (user == null)
+                {
+                    _response.StatusCode = System.Net.HttpStatusCode.NotFound;
+                }
 
                 var ProfileInfo = new ProfileDTO()
                 {
@@ -119,7 +141,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                     PhoneNumber = user.PhoneNumber,
                     State = user.State,
                     StreetAddress = user.StreetAddress,
-                    ProfilePictureURL = user.ProfilePicture.ImageUrl
+                    ProfilePictureURL = profilepicURL
                 };
 
                 if (editDTO.FirstName != ProfileInfo.FirstName) { ProfileInfo.FirstName = editDTO.FirstName; }
@@ -166,7 +188,12 @@ namespace SnaelyFashion_WebAPI.Controllers
 
 
         [HttpPut("UploadProfilePicture")]
-        public async Task<APIResponse> UploadProfilePicture( IFormFile? file)
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<APIResponse> UploadProfilePicture(IFormFile? file)
         {
             try
             {
@@ -176,7 +203,12 @@ namespace SnaelyFashion_WebAPI.Controllers
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId, includeProperties: "ProfilePicture");
-                string wwwRootPath = _webHostEnvironment.WebRootPath;
+                var userprofilepic = user.ProfilePicture;
+                if (user.ProfilePicture == null)
+                        user.ProfilePicture = new ProfilePicture();
+
+
+                string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
                 if (file != null)
                 {
 
@@ -192,6 +224,12 @@ namespace SnaelyFashion_WebAPI.Controllers
                     {
                         file.CopyTo(fileStream);
                     }
+                    if (userprofilepic != null)
+                    {
+                        _unitOfWork.ProfilePicture.Remove(userprofilepic);
+                        _unitOfWork.Save();
+                    }
+                    
 
                     ProfilePicture profilepicture = new()
                     {
@@ -201,10 +239,9 @@ namespace SnaelyFashion_WebAPI.Controllers
                     _unitOfWork.ProfilePicture.Add(profilepicture);
                     _unitOfWork.Save();
 
-                    if (user.ProfilePicture == null)
-                        user.ProfilePicture = new ProfilePicture();
+                    var createdpic = await _unitOfWork.ProfilePicture.GetAsync(x=>x.ApplicationUserId==userId);
 
-                    user.ProfilePicture = profilepicture;
+                    user.ProfilePicture = createdpic;
 
 
 
@@ -232,6 +269,11 @@ namespace SnaelyFashion_WebAPI.Controllers
 
 
         [HttpDelete("DeleteProfilePicture")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<APIResponse> DeleteProfilePictureAsync()
         {
 
@@ -242,10 +284,10 @@ namespace SnaelyFashion_WebAPI.Controllers
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId, includeProperties: "ProfilePicture");
 
-
+                string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
 
                 var imageToBeDeleted = user.ProfilePicture;
-                if (imageToBeDeleted == null) 
+                if (imageToBeDeleted == null)
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = System.Net.HttpStatusCode.NotFound;
@@ -257,7 +299,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                     if (!string.IsNullOrEmpty(imageToBeDeleted.ImageUrl))
                     {
                         var oldImagePath =
-                                       Path.Combine(_webHostEnvironment.WebRootPath,
+                                       Path.Combine(wwwRootPath,
                                        imageToBeDeleted.ImageUrl.TrimStart('\\'));
 
                         if (System.IO.File.Exists(oldImagePath))
@@ -273,7 +315,7 @@ namespace SnaelyFashion_WebAPI.Controllers
 
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 _response.IsSuccess = false;
                 _response.ErrorMessages

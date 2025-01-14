@@ -10,7 +10,7 @@ namespace SnaelyFashion_Models
 {
     public class ProfilePicture
     {
-        public string Id { get; set; }
+        public int Id { get; set; }
         [Required]
         public string ImageUrl { get; set; }
         public string ApplicationUserId { get; set; }

@@ -10,7 +10,7 @@ using SnaelyFashion_WebAPI.DataAccess.Repository.IRepository;
 
 namespace SnaelyFashion_AdminMVC.Controllers
 {
-    [Authorize(Roles = SD.Role_Admin)]
+    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
     public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -168,8 +168,8 @@ namespace SnaelyFashion_AdminMVC.Controllers
 
 
 
-                string wwwRootPath = _webHostEnvironment.WebRootPath;
-                if (files != null)
+            string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
+            if (files != null)
                 {
 
                     foreach (IFormFile file in files)
@@ -441,8 +441,8 @@ namespace SnaelyFashion_AdminMVC.Controllers
                 _unitOfWork.Save();
 
 
-                string wwwRootPath = _webHostEnvironment.WebRootPath;
-                if (files != null)
+            string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
+            if (files != null)
                 {
 
                     foreach (IFormFile file in files)
@@ -515,9 +515,9 @@ namespace SnaelyFashion_AdminMVC.Controllers
             {
                 return Json(new { success = false, message = "Error while deleting" });
             }
-
+            string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
             string productPath = @"images\products\product-" + id;
-            string finalPath = Path.Combine(_webHostEnvironment.WebRootPath, productPath);
+            string finalPath = Path.Combine(wwwRootPath, productPath);
 
             if (Directory.Exists(finalPath))
             {
@@ -543,12 +543,13 @@ namespace SnaelyFashion_AdminMVC.Controllers
         {
             var imageToBeDeleted = _unitOfWork.ProductImage.Get(u => u.Id == imageId);
             int productId = imageToBeDeleted.ProductId;
+            string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
             if (imageToBeDeleted != null)
             {
                 if (!string.IsNullOrEmpty(imageToBeDeleted.ImageUrl))
                 {
                     var oldImagePath =
-                                   Path.Combine(_webHostEnvironment.WebRootPath,
+                                   Path.Combine(wwwRootPath,
                                    imageToBeDeleted.ImageUrl.TrimStart('\\'));
 
                     if (System.IO.File.Exists(oldImagePath))

@@ -11,7 +11,7 @@ using System.Diagnostics;
 
 namespace SnaelyFashion_AdminMVC.Controllers
 {
-    [Authorize(Roles = SD.Role_Admin)]
+    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -47,7 +47,7 @@ namespace SnaelyFashion_AdminMVC.Controllers
             _unitOfWork.BlogPost.Add(blogpostVM.BlogPost);
             _unitOfWork.Save();
 
-            string wwwRootPath = _webHostEnvironment.WebRootPath;
+            string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
             if (files != null)
             {
 
@@ -152,7 +152,7 @@ namespace SnaelyFashion_AdminMVC.Controllers
             _unitOfWork.Save();
 
 
-            string wwwRootPath = _webHostEnvironment.WebRootPath;
+            string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
             if (files != null)
             {
 
@@ -232,9 +232,9 @@ namespace SnaelyFashion_AdminMVC.Controllers
             {
                 return Json(new { success = false, message = "Error while deleting" });
             }
-
+            string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
             string blogpostPath = @"images\BlogPosts\blogpost-" + id;
-            string finalPath = Path.Combine(_webHostEnvironment.WebRootPath, blogpostPath);
+            string finalPath = Path.Combine(wwwRootPath, blogpostPath);
 
             if (Directory.Exists(finalPath))
             {
@@ -262,12 +262,13 @@ namespace SnaelyFashion_AdminMVC.Controllers
         {
             var imageToBeDeleted = _unitOfWork.BlogPostImage.Get(u => u.Id == imageId);
             int blogpostId = imageToBeDeleted.BlogPostId;
+            string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
             if (imageToBeDeleted != null)
             {
                 if (!string.IsNullOrEmpty(imageToBeDeleted.ImageUrl))
                 {
                     var oldImagePath =
-                                   Path.Combine(_webHostEnvironment.WebRootPath,
+                                   Path.Combine(wwwRootPath,
                                    imageToBeDeleted.ImageUrl.TrimStart('\\'));
 
                     if (System.IO.File.Exists(oldImagePath))

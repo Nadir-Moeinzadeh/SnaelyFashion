@@ -12,8 +12,8 @@ using SnaelyFashion_WebAPI.DataAccess.Data;
 namespace SnaelyFashion_WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250104152752_tt")]
-    partial class tt
+    [Migration("20250114163556_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -240,6 +240,9 @@ namespace SnaelyFashion_WebAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -338,6 +341,10 @@ namespace SnaelyFashion_WebAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Count")
                         .HasColumnType("int");
 
@@ -349,6 +356,10 @@ namespace SnaelyFashion_WebAPI.Migrations
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Size")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -378,7 +389,11 @@ namespace SnaelyFashion_WebAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -540,8 +555,11 @@ namespace SnaelyFashion_WebAPI.Migrations
 
             modelBuilder.Entity("SnaelyFashion_Models.ProfilePicture", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ApplicationUserId")
                         .IsRequired()
@@ -553,7 +571,8 @@ namespace SnaelyFashion_WebAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
+                    b.HasIndex("ApplicationUserId")
+                        .IsUnique();
 
                     b.ToTable("ProfilePicture");
                 });
@@ -601,11 +620,19 @@ namespace SnaelyFashion_WebAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Count")
                         .HasColumnType("int");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Size")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -655,9 +682,6 @@ namespace SnaelyFashion_WebAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PostalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProfilePictureURL")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
@@ -820,8 +844,8 @@ namespace SnaelyFashion_WebAPI.Migrations
             modelBuilder.Entity("SnaelyFashion_Models.ProfilePicture", b =>
                 {
                     b.HasOne("SnaelyFashion_Models.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId")
+                        .WithOne("ProfilePicture")
+                        .HasForeignKey("SnaelyFashion_Models.ProfilePicture", "ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -903,6 +927,12 @@ namespace SnaelyFashion_WebAPI.Migrations
             modelBuilder.Entity("SnaelyFashion_Models.SubCategory", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("SnaelyFashion_Models.ApplicationUser", b =>
+                {
+                    b.Navigation("ProfilePicture")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace SnaelyFashion_AdminMVC.Controllers
 {
-    [Authorize(Roles = SD.Role_Admin)]
+    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
     public class OrderController : Controller
     {
        

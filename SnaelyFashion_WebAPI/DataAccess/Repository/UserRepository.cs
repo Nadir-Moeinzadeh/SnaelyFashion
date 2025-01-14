@@ -74,7 +74,7 @@ namespace SnaelyFashion_WebAPI.DataAccess.Repository
             var roles = await _userManager.GetRolesAsync(user);
             var roleslist = roles.ToList();
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_secretKey);
+            var key = Encoding.UTF8.GetBytes(_secretKey);
             var _role = roleslist.FirstOrDefault();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
