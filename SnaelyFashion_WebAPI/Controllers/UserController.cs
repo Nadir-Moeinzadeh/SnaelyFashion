@@ -33,7 +33,12 @@ namespace SnaelyFashion_WebAPI.Controllers
         }
 
         [HttpGet("GetUserInfo")]
-        
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> GetUserInfo()
         {
             try
@@ -84,7 +89,12 @@ namespace SnaelyFashion_WebAPI.Controllers
         }
 
         [HttpPut("EditUserInfo")]
-        public async Task<APIResponse> EditUserInfo([FromBody]ProfileEditDTO editDTO,IFormFile? file) 
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<APIResponse> EditUserInfo([FromBody]ProfileEditDTO editDTO) 
         {
             try
             {
