@@ -42,7 +42,8 @@ namespace SnaelyFashion_AdminMVC.Controllers
         public async Task<IActionResult> UpdateOrderDetail()
         {
             var orderHeaderFromDb =await _unitOfWork.OrderHeader.GetAsync(u => u.Id == OrderVM.OrderHeader.Id);
-            orderHeaderFromDb.Name = OrderVM.OrderHeader.Name;
+            orderHeaderFromDb.FirstName = OrderVM.OrderHeader.FirstName;
+            orderHeaderFromDb.LastName = OrderVM.OrderHeader.LastName;
             orderHeaderFromDb.PhoneNumber = OrderVM.OrderHeader.PhoneNumber;
             orderHeaderFromDb.StreetAddress = OrderVM.OrderHeader.StreetAddress;
             orderHeaderFromDb.City = OrderVM.OrderHeader.City;

@@ -26,13 +26,28 @@
                                 </h4>
                             </div>
                             <div class="row my-1">
-                                <div class="col-3">Name</div>
+                                <div class="col-3">FirstName</div>
                                 <div class="col-9">
                                    @*  @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
                                     { *@
-                                        <input asp-for="OrderHeader.Name" type="text" class="form-control" />
-                                        <span asp-validation-for="OrderHeader.Name" class="text-danger"></span>
+                                    <input asp-for="OrderHeader.FirstName" type="text" class="form-control" />
+                                    <span asp-validation-for="OrderHeader.FirstName" class="text-danger"></span>
                                    @*  }
+                                    else
+                                    {
+                                        <input asp-for="OrderHeader.Name" readonly type="text" class="form-control" />
+                                    } *@
+
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">LastName</div>
+                                <div class="col-9">
+                                    @*  @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
+                                    { *@
+                                    <input asp-for="OrderHeader.LastName" type="text" class="form-control" />
+                                    <span asp-validation-for="OrderHeader.LastName" class="text-danger"></span>
+                                    @*  }
                                     else
                                     {
                                         <input asp-for="OrderHeader.Name" readonly type="text" class="form-control" />

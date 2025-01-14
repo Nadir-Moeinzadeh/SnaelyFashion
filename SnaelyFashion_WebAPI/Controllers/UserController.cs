@@ -151,53 +151,7 @@ namespace SnaelyFashion_WebAPI.Controllers
 
 
 
-
-
-
-
-                string wwwRootPath = _webHostEnvironment.WebRootPath;
-                if (file != null)
-                {
-
-
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                    string userPath = @"images\users\user-" + user.Id;
-                    string finalPath = Path.Combine(wwwRootPath, userPath);
-
-                    if (!Directory.Exists(finalPath))
-                        Directory.CreateDirectory(finalPath);
-
-                    using (var fileStream = new FileStream(Path.Combine(finalPath, fileName), FileMode.Create))
-                    {
-                        file.CopyTo(fileStream);
-                    }
-
-                    ProfilePicture profilepicture = new()
-                    {
-                        ImageUrl = @"\" + userPath + @"\" + fileName,
-                        ApplicationUserId = user.Id,
-                    };
-                    _unitOfWork.ProfilePicture.Add(profilepicture);
-                    _unitOfWork.Save();
-
-                    if (user.ProfilePicture == null)
-                        user.ProfilePicture = new ProfilePicture();
-
-                    user.ProfilePicture=profilepicture;
-                   
-
-
-
-                    _unitOfWork.ApplicationUser.UpdateAsync(user);
-
-                    _unitOfWork.Save();
-
-
-
-                }
-
-
-                return _response;
+               
             }
             catch (Exception ex)
             {

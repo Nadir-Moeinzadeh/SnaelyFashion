@@ -19,6 +19,11 @@ namespace SnaelyFashion_Utility
         public const string StatusCancelled = "Cancelled";
         public const string StatusRefunded = "Refunded";
 
+
+        public const string PaymentMethod_Cash = "Cash";
+        public const string PaymentMethod_Card = "Stripe";
+
+
         public const string PaymentStatusPending = "Pending";
         public const string PaymentStatusApproved = "Approved";
         public const string PaymentStatusDelayedPayment = "ApprovedForDelayedPayment";
