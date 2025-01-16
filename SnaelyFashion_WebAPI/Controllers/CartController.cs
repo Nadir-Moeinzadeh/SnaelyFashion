@@ -11,6 +11,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using System.Net;
+using System.Text;
 
 namespace SnaelyFashion_WebAPI.Controllers
 {
@@ -41,10 +42,23 @@ namespace SnaelyFashion_WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> AddToCart(int productId, [FromBody] ShoppingCartItemDTO cartDTO)
+        public async Task<ActionResult<APIResponse>> AddToCart(int productId, [FromBody] ShoppingCartItemAddDTO cartDTO)
         {
             try
             {
+                if (productId==0) 
+                {
+                    _response.StatusCode=HttpStatusCode.BadRequest;
+                    _response.IsSuccess=false;
+                }
+                var product = await _unitOfWork.Product.GetAsync(x=>x.Id == productId);
+                if (product == null) 
+                {
+                    _response.StatusCode=HttpStatusCode.NotFound;
+                    _response.IsSuccess=false;
+                    return _response;
+                
+                }
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
                 ShoppingCart cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.ApplicationUserId == userId && u.ProductId == productId);
@@ -56,6 +70,8 @@ namespace SnaelyFashion_WebAPI.Controllers
                     cartFromDb.Count += cartDTO.Count;
                     cartFromDb.Color = cartDTO.Color;
                     cartFromDb.Size = cartDTO.Size;
+                    cartFromDb.Price = product.Price;
+                    
                     _unitOfWork.ShoppingCart.Update(cartFromDb);
                     _unitOfWork.Save();
                 }
@@ -68,7 +84,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                         Size = cartDTO.Size,
                         Color = cartDTO.Color,
                         Count = cartDTO.Count,
-                        Price = cartDTO.Price,
+                        Price = product.Price,
 
                     };
 
@@ -172,13 +188,13 @@ namespace SnaelyFashion_WebAPI.Controllers
             return _response;
         }
 
-        [HttpPut("{ShoppingCartItemId:int}", Name = "EditCartItemQuantity")]
+        [HttpPut("{id:int}", Name = "EditCartItemQuantity")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<APIResponse> EditCartItemQuantity(int ShoppingCartItemId, int NewCount)
+        public async Task<APIResponse> EditCartItemQuantity(int id, int NewCount)
         {
 
             try
@@ -186,7 +202,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId);
-                var shoppingcartfromDB = await _unitOfWork.ShoppingCart.GetAsync(u => u.Id == ShoppingCartItemId,
+                var shoppingcartfromDB = await _unitOfWork.ShoppingCart.GetAsync(u => u.Id == id,
               includeProperties: "Product");
 
                 if (shoppingcartfromDB == null)
@@ -199,16 +215,17 @@ namespace SnaelyFashion_WebAPI.Controllers
                 shoppingcartfromDB.Count = NewCount;
                 _unitOfWork.ShoppingCart.Update(shoppingcartfromDB);
                 _unitOfWork.Save();
+                var cartfromDbafterUpdate = await _unitOfWork.ShoppingCart.GetAsync(x => x.Id == id);
                 var ShopingcartItemDTO = new ShoppingCartItemDTO
                 {
-                    ProductName = shoppingcartfromDB.Product.Title,
-                    ProductId = shoppingcartfromDB.ProductId,
-                    ShoppingCartId = ShoppingCartItemId,
+                    ProductName = cartfromDbafterUpdate.Product.Title,
+                    ProductId = cartfromDbafterUpdate.ProductId,
+                    ShoppingCartId = id,
                     ApplicationUserId = userId,
-                    Color = shoppingcartfromDB.Color,
-                    Count = NewCount,
-                    Price = shoppingcartfromDB.Price,
-                    Size = shoppingcartfromDB.Size,
+                    Color = cartfromDbafterUpdate.Color,
+                    Count = cartfromDbafterUpdate.Count,
+                    Price = cartfromDbafterUpdate.Price,
+                    Size = cartfromDbafterUpdate.Size,
                     ImageUrl =SD.Defaultwwwroot+ shoppingcartfromDB.Product.ProductImages.FirstOrDefault()?.ImageUrl
 
 
@@ -235,18 +252,18 @@ namespace SnaelyFashion_WebAPI.Controllers
         }
 
 
-        [HttpDelete("{ShoppingCartItemId:int}", Name = "RemoveItemFromShoppingCart")]
+        [HttpDelete( Name = "RemoveItemFromShoppingCart")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<APIResponse> RemoveItemFromShoppingCart(int ShoppingCartItemId)
+        public async Task<APIResponse> RemoveItemFromShoppingCart([FromQuery]int id)
         {
 
             try
             {
-                var itemtodelete = await _unitOfWork.ShoppingCart.GetAsync(x => x.Id == ShoppingCartItemId);
+                var itemtodelete = await _unitOfWork.ShoppingCart.GetAsync(x => x.Id == id);
                 if (itemtodelete == null)
                 {
                     _response.IsSuccess = false;
@@ -365,7 +382,7 @@ namespace SnaelyFashion_WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status303SeeOther)]
         public async Task<ActionResult<APIResponse>> SummaryPost(ShoppingCartDTO shoppingCartDTO, string PaymentMethod)
         {
-
+            
 
             try
             {
@@ -431,8 +448,10 @@ namespace SnaelyFashion_WebAPI.Controllers
                     var domain = Request.Scheme + "://" + Request.Host.Value + "/";
                     var options = new SessionCreateOptions
                     {
-                        SuccessUrl = domain + $"www.google.com",
-                        CancelUrl = domain + "www.youtube.com",
+                        //SuccessUrl = domain + $"www.google.com",
+                        //CancelUrl = domain + "www.youtube.com",
+                        SuccessUrl =  $"www.google.com",
+                        CancelUrl =  "www.youtube.com",
                         LineItems = new List<SessionLineItemOptions>(),
                         Mode = "payment",
                     };
@@ -462,8 +481,10 @@ namespace SnaelyFashion_WebAPI.Controllers
                     _unitOfWork.Save();
                     Response.Headers.Add("Location", session.Url);
 
+                    
                     _response.IsSuccess = true;
-                    _response.Result = shoppingCartDTO;
+                    //_response.Result = shoppingCartDTO;
+                    _response.Result = session.Url;
                     _response.StatusCode = System.Net.HttpStatusCode.SeeOther;
                 }
                 if (PaymentMethod == SD.PaymentMethod_Cash)
