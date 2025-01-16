@@ -11,7 +11,7 @@ using System.Diagnostics;
 
 namespace SnaelyFashion_AdminMVC.Controllers
 {
-    //[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
