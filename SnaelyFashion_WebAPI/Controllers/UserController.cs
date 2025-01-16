@@ -7,9 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using SnaelyFashion_Models;
 using SnaelyFashion_Models.DTO.ApplicationUser_;
 using SnaelyFashion_Models.DTO.Profile_;
+using SnaelyFashion_Utility;
 using SnaelyFashion_WebAPI.DataAccess.Data;
 using SnaelyFashion_WebAPI.DataAccess.Repository.IRepository;
 using System.Security.Claims;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SnaelyFashion_WebAPI.Controllers
 {
@@ -23,6 +25,7 @@ namespace SnaelyFashion_WebAPI.Controllers
         private ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly string _PhotosRoot;
         public UserController(UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment,ApplicationDbContext dbContext, IUnitOfWork unitOfWork)
         {
             _context = dbContext;
@@ -30,6 +33,7 @@ namespace SnaelyFashion_WebAPI.Controllers
             _userManager = userManager;
             _webHostEnvironment = webHostEnvironment;
             _unitOfWork = unitOfWork;
+           
         }
 
         [HttpGet("GetUserInfo")]
@@ -53,19 +57,23 @@ namespace SnaelyFashion_WebAPI.Controllers
                 var userimage = await _unitOfWork.ProfilePicture.GetAsync(x => x.ApplicationUserId == userId);
                 if (userimage != null)
                 {
-                    profilepicURL = userimage.ImageUrl;
+                    profilepicURL =SD.Defaultwwwroot+ userimage.ImageUrl;
                 }
                 if (userimage == null)
                 {
-                    profilepicURL = "";
+                    profilepicURL = SD.DefaultUserIconURL;
                 }
                 if (user == null) 
                 {
                     return NotFound();
                 }
 
+               
 
-                var ProfileInfo = new ProfileDTO()
+               
+  
+
+                  var ProfileInfo = new ProfileDTO()
                 {
                     ID = userId,
                     FullName = $"{user.FirstName} {user.LastName}",
@@ -118,16 +126,19 @@ namespace SnaelyFashion_WebAPI.Controllers
 
                 if (userimage != null)
                 {
-                    profilepicURL = userimage.ImageUrl;
+                    profilepicURL = SD.Defaultwwwroot+userimage.ImageUrl;
                 }
                 if (userimage == null)
                 {
-                    profilepicURL = "";
+                    profilepicURL = SD.DefaultUserIconURL;
                 }
                 if (user == null)
                 {
                     _response.StatusCode = System.Net.HttpStatusCode.NotFound;
                 }
+
+                profilepicURL.Replace("//", "/");
+
 
                 var ProfileInfo = new ProfileDTO()
                 {
@@ -208,7 +219,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                         user.ProfilePicture = new ProfilePicture();
 
 
-                string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
+                string wwwRootPath = SD.Defaultwwwroot;
                 if (file != null)
                 {
 
@@ -229,8 +240,13 @@ namespace SnaelyFashion_WebAPI.Controllers
                         _unitOfWork.ProfilePicture.Remove(userprofilepic);
                         _unitOfWork.Save();
                     }
-                    
 
+
+                    //ProfilePicture profilepicture = new()
+                    //{
+                    //    ImageUrl = @"\" + userPath + @"\" + fileName,
+                    //    ApplicationUserId = user.Id,
+                    //};
                     ProfilePicture profilepicture = new()
                     {
                         ImageUrl = @"\" + userPath + @"\" + fileName,
@@ -284,7 +300,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId, includeProperties: "ProfilePicture");
 
-                string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
+                string wwwRootPath = SD.Defaultwwwroot;
 
                 var imageToBeDeleted = user.ProfilePicture;
                 if (imageToBeDeleted == null)

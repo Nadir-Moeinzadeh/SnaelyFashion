@@ -146,7 +146,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                         Price = item.Price,
                         ProductId = item.ProductId,
                         Size = item.Size,
-                        ImageUrl = productImages.Where(x => x.ProductId == item.ProductId).FirstOrDefault()?.ImageUrl
+                        ImageUrl =SD.Defaultwwwroot+ productImages.Where(x => x.ProductId == item.ProductId).FirstOrDefault()?.ImageUrl
                     };
 
                     shoppingcartitemDTOlist.Add(shoppingcartitemDTO);
@@ -209,7 +209,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                     Count = NewCount,
                     Price = shoppingcartfromDB.Price,
                     Size = shoppingcartfromDB.Size,
-                    ImageUrl = shoppingcartfromDB.Product.ProductImages.FirstOrDefault()?.ImageUrl
+                    ImageUrl =SD.Defaultwwwroot+ shoppingcartfromDB.Product.ProductImages.FirstOrDefault()?.ImageUrl
 
 
                 };
@@ -314,7 +314,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                         Price = item.Price,
                         ProductId = item.ProductId,
                         Size = item.Size,
-                        ImageUrl = productImages.Where(x => x.ProductId == item.ProductId).FirstOrDefault()?.ImageUrl
+                        ImageUrl =SD.Defaultwwwroot+ productImages.Where(x => x.ProductId == item.ProductId).FirstOrDefault()?.ImageUrl
                     };
                     ordertotal += item.Count * item.Price;
                     shoppingcartitemDTOlist.Add(shoppingcartitemDTO);

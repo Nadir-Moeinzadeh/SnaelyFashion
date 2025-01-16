@@ -9,6 +9,7 @@ using SnaelyFashion_WebAPI.DataAccess.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using SnaelyFashion_Models.DTO.Product_;
 using SnaelyFashion_Models.DTO.Review_;
+using SnaelyFashion_Utility;
 
 namespace SnaelyFashion_WebAPI.Controllers
 {
@@ -61,7 +62,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                     var _title = blogpost.Title;
                     var _description = blogpost.Description;
                     var _blogpostimage = await _unitOfWork.BlogPostImage.GetAsync(u => u.BlogPostId == _ID);
-                    var _blogpostimageUrl = _blogpostimage.ImageUrl;
+                    var _blogpostimageUrl = SD.Defaultwwwroot+_blogpostimage.ImageUrl;
 
 
 
@@ -127,7 +128,12 @@ namespace SnaelyFashion_WebAPI.Controllers
                
                 var imageUrls = blogpost.blogPostImages.Select(x => x.ImageUrl).ToList();
                 
-              
+                var imageUrlsList = new List<string>();
+                foreach (var imageUrl in imageUrls) 
+                {
+                    var item = SD.Defaultwwwroot+imageUrl;
+                    imageUrlsList.Add(item);
+                }
 
 
 
@@ -139,7 +145,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                     Title = blogpost.Title,
                     Description = blogpost.Description,
                    
-                    BlogPostImagesUrls = imageUrls
+                    BlogPostImagesUrls = imageUrlsList
                    
 
                 };

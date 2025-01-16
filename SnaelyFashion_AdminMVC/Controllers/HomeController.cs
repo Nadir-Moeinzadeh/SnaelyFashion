@@ -24,6 +24,7 @@ namespace SnaelyFashion_AdminMVC.Controllers
            _Context = dbContext;
             _webHostEnvironment = webHostEnvironment;
             _unitOfWork = unitOfWork;
+           
         }
 
         public IActionResult Index()
@@ -47,7 +48,10 @@ namespace SnaelyFashion_AdminMVC.Controllers
             _unitOfWork.BlogPost.Add(blogpostVM.BlogPost);
             _unitOfWork.Save();
 
-            string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
+            //string wwwRootPath = _webHostEnvironment.WebRootPath;
+
+            string wwwRootPath = SD.Defaultwwwroot;
+
             if (files != null)
             {
 
@@ -152,7 +156,8 @@ namespace SnaelyFashion_AdminMVC.Controllers
             _unitOfWork.Save();
 
 
-            string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
+            //string wwwRootPath = _webHostEnvironment.WebRootPath;
+            string wwwRootPath = SD.Defaultwwwroot;
             if (files != null)
             {
 
@@ -232,7 +237,8 @@ namespace SnaelyFashion_AdminMVC.Controllers
             {
                 return Json(new { success = false, message = "Error while deleting" });
             }
-            string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
+            //string wwwRootPath = _webHostEnvironment.WebRootPath;
+            string wwwRootPath = SD.Defaultwwwroot;
             string blogpostPath = @"images\BlogPosts\blogpost-" + id;
             string finalPath = Path.Combine(wwwRootPath, blogpostPath);
 
@@ -262,7 +268,7 @@ namespace SnaelyFashion_AdminMVC.Controllers
         {
             var imageToBeDeleted = _unitOfWork.BlogPostImage.Get(u => u.Id == imageId);
             int blogpostId = imageToBeDeleted.BlogPostId;
-            string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
+            string wwwRootPath = SD.Defaultwwwroot;
             if (imageToBeDeleted != null)
             {
                 if (!string.IsNullOrEmpty(imageToBeDeleted.ImageUrl))

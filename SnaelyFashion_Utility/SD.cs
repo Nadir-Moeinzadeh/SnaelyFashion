@@ -29,7 +29,8 @@ namespace SnaelyFashion_Utility
         public const string PaymentStatusDelayedPayment = "ApprovedForDelayedPayment";
         public const string PaymentStatusRejected = "Rejected";
 
-
+        public const string Defaultwwwroot = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
+        public const string DefaultUserIconURL = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot\\images\\users\\default\\defaultusericon.png";
         public const string SessionCart = "SessionShoppingCart";
 
 

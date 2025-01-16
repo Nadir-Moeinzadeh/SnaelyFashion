@@ -7,6 +7,7 @@ using SnaelyFashion_Models;
 using SnaelyFashion_Models.DTO.Blogposts_;
 using SnaelyFashion_Models.DTO.Product_;
 using SnaelyFashion_Models.DTO.Review_;
+using SnaelyFashion_Utility;
 using SnaelyFashion_WebAPI.DataAccess.Data;
 using SnaelyFashion_WebAPI.DataAccess.Repository.IRepository;
 using System.Net;
@@ -63,7 +64,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                         Id = _ID,
                         Title = _title,
                         Description = _description,
-                        BlogpostImageUrl = _blogpostimageUrl,
+                        BlogpostImageUrl = SD.Defaultwwwroot+_blogpostimageUrl,
                         CreatedDate = blogpost.CreatedDate
 
                     };
@@ -129,7 +130,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                     var _category = await _unitOfWork.Category.GetAsync(u=>u.Id==_categoryID);
                     var _subcategory = await _unitOfWork.SubCategory.GetAsync(u=>u.Id == _subcategoryID);
                     var _productimage = await _unitOfWork.ProductImage.GetAsync(u=>u.ProductId==_ID);
-                    var _productimageUrl = _productimage.ImageUrl;
+                    var _productimageUrl = SD.Defaultwwwroot + _productimage.ImageUrl;
                     var _categoryname = _category.Name;
                     var _subcategoryname = _subcategory.SubCategoryName;
                    
@@ -211,7 +212,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                     var _category = await _unitOfWork.Category.GetAsync(u => u.Id == _categoryID);
                     var _subcategory = await _unitOfWork.SubCategory.GetAsync(u => u.Id == _subcategoryID);
                     var _productimage = await _unitOfWork.ProductImage.GetAsync(u => u.ProductId == _ID);
-                    var _productimageUrl = _productimage.ImageUrl;
+                    var _productimageUrl = SD.Defaultwwwroot + _productimage.ImageUrl;
                     var _categoryname = _category.Name;
                     var _subcategoryname = _subcategory.SubCategoryName;
 
@@ -294,7 +295,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                     var _category = await _unitOfWork.Category.GetAsync(u => u.Id == _categoryID);
                     var _subcategory = await _unitOfWork.SubCategory.GetAsync(u => u.Id == _subcategoryID);
                     var _productimage = await _unitOfWork.ProductImage.GetAsync(u => u.ProductId == _ID);
-                    var _productimageUrl = _productimage.ImageUrl;
+                    var _productimageUrl = SD.Defaultwwwroot + _productimage.ImageUrl;
                     var _categoryname = _category.Name;
                     var _subcategoryname = _subcategory.SubCategoryName;
 
@@ -409,6 +410,13 @@ namespace SnaelyFashion_WebAPI.Controllers
                     reviewslist.Add(reviewDTO);
                 }
 
+                var ImageUrlsList = new List<string>();
+                foreach (var url in imageUrls) 
+                {
+                    var item = SD.Defaultwwwroot+url;
+                    ImageUrlsList.Add(item);
+                
+                }
 
 
 
@@ -422,7 +430,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                     CategoryId=product.CategoryId,
                     SubCategory=product.SubCategory.SubCategoryName,
                     SubCategoryId=product.SubCategoryId,
-                    ProductImagesUrls=imageUrls,
+                    ProductImagesUrls=ImageUrlsList,
                     Gender=product.Gender,
                     Colors=colors,
                     Sizes=sizes,

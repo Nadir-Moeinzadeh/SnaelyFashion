@@ -168,7 +168,7 @@ namespace SnaelyFashion_AdminMVC.Controllers
 
 
 
-            string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
+            string wwwRootPath = SD.Defaultwwwroot;
             if (files != null)
                 {
 
@@ -441,7 +441,7 @@ namespace SnaelyFashion_AdminMVC.Controllers
                 _unitOfWork.Save();
 
 
-            string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
+            string wwwRootPath = SD.Defaultwwwroot;
             if (files != null)
                 {
 
@@ -515,7 +515,7 @@ namespace SnaelyFashion_AdminMVC.Controllers
             {
                 return Json(new { success = false, message = "Error while deleting" });
             }
-            string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
+            string wwwRootPath = SD.Defaultwwwroot;
             string productPath = @"images\products\product-" + id;
             string finalPath = Path.Combine(wwwRootPath, productPath);
 
@@ -543,7 +543,7 @@ namespace SnaelyFashion_AdminMVC.Controllers
         {
             var imageToBeDeleted = _unitOfWork.ProductImage.Get(u => u.Id == imageId);
             int productId = imageToBeDeleted.ProductId;
-            string wwwRootPath = "C:\\Users\\nader\\source\\repos\\SnaelyFashion\\SnaelyFashion_AdminMVC\\wwwroot";
+            string wwwRootPath = SD.Defaultwwwroot;
             if (imageToBeDeleted != null)
             {
                 if (!string.IsNullOrEmpty(imageToBeDeleted.ImageUrl))
