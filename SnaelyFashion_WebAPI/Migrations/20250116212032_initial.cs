@@ -448,6 +448,7 @@ namespace SnaelyFashion_WebAPI.Migrations
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     Count = table.Column<int>(type: "int", nullable: false),
                     ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Price = table.Column<double>(type: "float", nullable: false),
                     Color = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Size = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },

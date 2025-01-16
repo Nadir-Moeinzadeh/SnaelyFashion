@@ -135,7 +135,7 @@ namespace SnaelyFashion_WebAPI.Controllers
             {
 
                 var shoppingcartitemDTOlist = new List<ShoppingCartItemDTO>();
-
+                var allproducts =await _unitOfWork.Product.GetAllAsync();
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId);
@@ -152,9 +152,11 @@ namespace SnaelyFashion_WebAPI.Controllers
 
                 foreach (var item in shoppingcartlistfromDB)
                 {
+                    var product = allproducts.Where(x=>x.Id == item.ProductId).FirstOrDefault();
+
                     var shoppingcartitemDTO = new ShoppingCartItemDTO
                     {
-                        ProductName = item.Product.Title,
+                        ProductName = product.Title,
                         ShoppingCartId = item.Id,
                         ApplicationUserId = userId,
                         Color = item.Color,
@@ -188,13 +190,13 @@ namespace SnaelyFashion_WebAPI.Controllers
             return _response;
         }
 
-        [HttpPut("{id:int}", Name = "EditCartItemQuantity")]
+        [HttpPut(Name = "EditCartItemQuantity")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<APIResponse> EditCartItemQuantity(int id, int NewCount)
+        public async Task<APIResponse> EditCartItemQuantity([FromQuery]int id, [FromQuery]int NewCount)
         {
 
             try
@@ -204,6 +206,9 @@ namespace SnaelyFashion_WebAPI.Controllers
                 var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId);
                 var shoppingcartfromDB = await _unitOfWork.ShoppingCart.GetAsync(u => u.Id == id,
               includeProperties: "Product");
+
+                var product = await _unitOfWork.Product.GetAsync(x => x.Id == shoppingcartfromDB.ProductId);
+                var productimage = await _unitOfWork.ProductImage.GetAsync(x=>x.ProductId==product.Id);
 
                 if (shoppingcartfromDB == null)
                 {
@@ -218,7 +223,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                 var cartfromDbafterUpdate = await _unitOfWork.ShoppingCart.GetAsync(x => x.Id == id);
                 var ShopingcartItemDTO = new ShoppingCartItemDTO
                 {
-                    ProductName = cartfromDbafterUpdate.Product.Title,
+                    ProductName = product.Title,
                     ProductId = cartfromDbafterUpdate.ProductId,
                     ShoppingCartId = id,
                     ApplicationUserId = userId,
@@ -226,7 +231,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                     Count = cartfromDbafterUpdate.Count,
                     Price = cartfromDbafterUpdate.Price,
                     Size = cartfromDbafterUpdate.Size,
-                    ImageUrl =SD.Defaultwwwroot+ shoppingcartfromDB.Product.ProductImages.FirstOrDefault()?.ImageUrl
+                    ImageUrl =SD.Defaultwwwroot+productimage.ImageUrl
 
 
                 };
@@ -304,7 +309,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                 var shoppingCartDTO = new ShoppingCartDTO();
 
                 var shoppingcartitemDTOlist = new List<ShoppingCartItemDTO>();
-
+                var AllProducts = await _unitOfWork.Product.GetAllAsync();
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId);
@@ -321,9 +326,10 @@ namespace SnaelyFashion_WebAPI.Controllers
 
                 foreach (var item in shoppingcartlistfromDB)
                 {
+                    var product = AllProducts.Where(x=>x.Id==item.ProductId).FirstOrDefault();
                     var shoppingcartitemDTO = new ShoppingCartItemDTO
                     {
-                        ProductName = item.Product.Title,
+                        ProductName = product.Title,
                         ShoppingCartId = item.Id,
                         ApplicationUserId = userId,
                         Color = item.Color,

@@ -624,6 +624,9 @@ namespace SnaelyFashion_WebAPI.Migrations
                     b.Property<int>("Count")
                         .HasColumnType("int");
 
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 

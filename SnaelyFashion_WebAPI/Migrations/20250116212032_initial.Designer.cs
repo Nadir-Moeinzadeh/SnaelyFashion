@@ -12,7 +12,7 @@ using SnaelyFashion_WebAPI.DataAccess.Data;
 namespace SnaelyFashion_WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250114163556_initial")]
+    [Migration("20250116212032_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -626,6 +626,9 @@ namespace SnaelyFashion_WebAPI.Migrations
 
                     b.Property<int>("Count")
                         .HasColumnType("int");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
