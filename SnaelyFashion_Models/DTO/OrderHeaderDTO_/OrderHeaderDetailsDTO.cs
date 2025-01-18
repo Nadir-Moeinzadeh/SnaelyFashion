@@ -9,7 +9,7 @@ namespace SnaelyFashion_Models.DTO.OrderHeaderDTO_
     public class OrderHeaderDetailsDTO
     {
 
-        public string ApplicationUserId { get; set; }
+     
 
         public double OrderTotal { get; set; }
 

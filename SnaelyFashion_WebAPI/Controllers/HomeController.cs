@@ -375,7 +375,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                     return BadRequest(_response);
                 }
                 var product = await _unitOfWork.Product.GetAsync(u=>u.Id==id,includeProperties: "Category,SubCategory,ProductImages,Colors,Sizes");
-
+                var profilepics =await _unitOfWork.ProfilePicture.GetAllAsync();
                 if (product == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
@@ -390,11 +390,20 @@ namespace SnaelyFashion_WebAPI.Controllers
                 foreach (var review in reviewsfromdb)
                 {
                     var user = await _unitOfWork.ApplicationUser.GetAsync(x=>x.Id==review.ApplicationUserId,includeProperties: "ProfilePicture");
-
+                    var profilepic = profilepics.Where(x=>x.ApplicationUserId==review.ApplicationUserId).FirstOrDefault();
+                    string profilepicUrl="";
+                    if (profilepic==null)
+                    {
+                        profilepicUrl = SD.DefaultUserIconURL;
+                    }
+                    if (profilepic!= null)
+                    {
+                        profilepicUrl = SD.Defaultwwwroot+profilepic.ImageUrl;
+                    }
                     var userreviewDTO = new ReviewUserDTO
                     {
                         Id = user.Id,
-                        ProfilePicURL = user.ProfilePicture.ImageUrl,
+                        ProfilePicURL = profilepicUrl,
                         FullName = $"{user.FirstName} {user.LastName}"
 
                     };

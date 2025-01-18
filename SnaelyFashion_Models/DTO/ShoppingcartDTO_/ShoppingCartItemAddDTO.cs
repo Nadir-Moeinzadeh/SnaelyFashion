@@ -15,8 +15,8 @@ namespace SnaelyFashion_Models.DTO.ShoppingcartDTO_
 
 
 
-        [Range(1, 1000, ErrorMessage = "Please enter a value between 1 and 1000")]
-        public int Count { get; set; } = 1;
+        //[Range(1, 1000, ErrorMessage = "Please enter a value between 1 and 1000")]
+        //public int Count { get; set; } = 1;
 
         
 

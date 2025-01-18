@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SnaelyFashion_Models.DTO.OrderHeaderDTO_;
 using SnaelyFashion_Models.DTO.ShoppingcartDTO_;
+using SnaelyFashion_Models.DTO.Summary_;
 using SnaelyFashion_Models;
 using SnaelyFashion_Utility;
 using SnaelyFashion_WebAPI.DataAccess.Repository.IRepository;
@@ -67,7 +68,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                 if (cartFromDb != null)
                 {
                     //shopping cart exists
-                    cartFromDb.Count += cartDTO.Count;
+                    cartFromDb.Count += 1;
                     cartFromDb.Color = cartDTO.Color;
                     cartFromDb.Size = cartDTO.Size;
                     cartFromDb.Price = product.Price;
@@ -83,7 +84,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                         ProductId = productId,
                         Size = cartDTO.Size,
                         Color = cartDTO.Color,
-                        Count = cartDTO.Count,
+                        Count = 1,
                         Price = product.Price,
 
                     };
@@ -306,7 +307,7 @@ namespace SnaelyFashion_WebAPI.Controllers
 
             try
             {
-                var shoppingCartDTO = new ShoppingCartDTO();
+                var shoppingCartDTO = new SummaryGetDTO();
 
                 var shoppingcartitemDTOlist = new List<ShoppingCartItemDTO>();
                 var AllProducts = await _unitOfWork.Product.GetAllAsync();
@@ -347,10 +348,11 @@ namespace SnaelyFashion_WebAPI.Controllers
 
                 var orderheaderDTO = new OrderHeaderDetailsDTO
                 {
-                    ApplicationUserId = userId,
-                    PhoneNumber = user.PhoneNumber,
+                   
+                    
                     FirstName = user.FirstName,
                     LastName = user.LastName,
+                    PhoneNumber = user.PhoneNumber,
                     State = user.State,
                     City = user.City,
                     PostalCode = user.PostalCode,
@@ -386,30 +388,38 @@ namespace SnaelyFashion_WebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status303SeeOther)]
-        public async Task<ActionResult<APIResponse>> SummaryPost(ShoppingCartDTO shoppingCartDTO, string PaymentMethod)
+        public async Task<ActionResult<APIResponse>> SummaryPost(OrderHeaderDetailsDTO orderheaderDetailsDTO, string PaymentMethod)
         {
-            
+            double ordertotal = 0;
 
             try
             {
-
-
+                var shoppingcartitemDTOlist = new List<ShoppingCartItemDTO>();
+                IEnumerable<ProductImage> productImages = await _unitOfWork.ProductImage.GetAllAsync();
+                var allproducts = await _unitOfWork.Product.GetAllAsync();
                 var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var user = await _unitOfWork.ApplicationUser.GetAsync(x => x.Id == userId);
+                var shoppingcartslist = await _unitOfWork.ShoppingCart.GetAllAsync(x=>x.ApplicationUserId==userId);
+              
+                if (shoppingcartslist == null) 
+                {
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    return _response;
+                } 
 
                 OrderHeader neworderheader = new OrderHeader();
 
                 neworderheader.OrderDate = DateTime.Now;
                 neworderheader.ApplicationUserId = userId;
-                neworderheader.OrderTotal = shoppingCartDTO.OrderHeaderDetails.OrderTotal;
-                neworderheader.PhoneNumber = shoppingCartDTO.OrderHeaderDetails.PhoneNumber;
-                neworderheader.FirstName = shoppingCartDTO.OrderHeaderDetails.FirstName;
-                neworderheader.LastName = shoppingCartDTO.OrderHeaderDetails.LastName;
-                neworderheader.State = shoppingCartDTO.OrderHeaderDetails.State;
-                neworderheader.City = shoppingCartDTO.OrderHeaderDetails.City;
-                neworderheader.StreetAddress = shoppingCartDTO.OrderHeaderDetails.StreetAddress;
-                neworderheader.PostalCode = shoppingCartDTO.OrderHeaderDetails.PostalCode;
+                neworderheader.OrderTotal = orderheaderDetailsDTO.OrderTotal;
+                neworderheader.PhoneNumber = orderheaderDetailsDTO.PhoneNumber;
+                neworderheader.FirstName = orderheaderDetailsDTO.FirstName;
+                neworderheader.LastName = orderheaderDetailsDTO.LastName;
+                neworderheader.State = orderheaderDetailsDTO.State;
+                neworderheader.City = orderheaderDetailsDTO.City;
+                neworderheader.StreetAddress = orderheaderDetailsDTO.StreetAddress;
+                neworderheader.PostalCode = orderheaderDetailsDTO.PostalCode;
 
                 if (PaymentMethod == SD.PaymentMethod_Cash)
                 {
@@ -427,26 +437,83 @@ namespace SnaelyFashion_WebAPI.Controllers
 
                 var createdorderheader = await _unitOfWork.OrderHeader.GetAsync(x => x.ApplicationUserId == userId && x.OrderTotal == neworderheader.OrderTotal);
 
-                foreach (var cart in shoppingCartDTO.ShoppingCartList)
+                foreach (var cart in shoppingcartslist)
                 {
                     OrderDetail orderDetail = new()
                     {
                         ProductId = cart.ProductId,
                         OrderHeaderId = createdorderheader.Id,
                         Price = cart.Price,
-                        Count = cart.Count
+                        Count = cart.Count,
+                        Color = cart.Color,
+                        Size = cart.Size
+                        
+                        
                     };
                     _unitOfWork.OrderDetail.Add(orderDetail);
                     _unitOfWork.Save();
                 }
+               var shoppingCartDTO = new ShoppingCartDTO();
 
+
+
+
+
+
+                var shoppingcartlistfromDB = await _unitOfWork.ShoppingCart.GetAllAsync(u => u.ApplicationUserId == userId,
+includeProperties: "Product");
+
+                if (shoppingcartlistfromDB == null)
+                {
+                    _response.IsSuccess = true;
+                    _response.Result = "";
+                    _response.StatusCode = System.Net.HttpStatusCode.OK;
+                }
+
+                foreach (var item in shoppingcartlistfromDB)
+                {
+                    var product = allproducts.Where(x => x.Id == item.ProductId).FirstOrDefault();
+                    var shoppingcartitemDTO = new ShoppingCartItemDTO
+                    {
+                        ProductName = product.Title,
+                        ShoppingCartId = item.Id,
+                        ApplicationUserId = userId,
+                        Color = item.Color,
+                        Count = item.Count,
+                        Price = item.Price,
+                        ProductId = item.ProductId,
+                        Size = item.Size,
+                        ImageUrl = SD.Defaultwwwroot + productImages.Where(x => x.ProductId == item.ProductId).FirstOrDefault()?.ImageUrl
+                    };
+                    ordertotal += item.Count * item.Price;
+                    shoppingcartitemDTOlist.Add(shoppingcartitemDTO);
+
+                }
+                shoppingCartDTO.ShoppingCartList = shoppingcartitemDTOlist;
+
+                var orderheaderDTO = new OrderHeaderDetailsDTO
+                {
+
+
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    PhoneNumber = user.PhoneNumber,
+                    State = user.State,
+                    City = user.City,
+                    PostalCode = user.PostalCode,
+                    StreetAddress = user.StreetAddress,
+                    OrderTotal = ordertotal
+
+                };
+                shoppingCartDTO.OrderHeaderDetails = orderheaderDTO;
 
                 shoppingCartDTO.OrderHeaderId = createdorderheader.Id;
+                
 
 
                 if (PaymentMethod == SD.PaymentMethod_Card)
                 {
-                    var allproducts = await _unitOfWork.Product.GetAllAsync();
+                   
 
 
 
@@ -456,14 +523,16 @@ namespace SnaelyFashion_WebAPI.Controllers
                     {
                         //SuccessUrl = domain + $"www.google.com",
                         //CancelUrl = domain + "www.youtube.com",
-                        SuccessUrl =  $"www.google.com",
-                        CancelUrl =  "www.youtube.com",
+                        SuccessUrl =  $"{domain}www.google.com",
+                        CancelUrl =  $"{domain}www.youtube.com",
                         LineItems = new List<SessionLineItemOptions>(),
                         Mode = "payment",
                     };
 
-                    foreach (var item in shoppingCartDTO.ShoppingCartList)
+                    foreach (var item in shoppingcartslist)
                     {
+                        var productinfo = allproducts.Where(x=>x.Id == item.ProductId).FirstOrDefault();
+
                         var sessionLineItem = new SessionLineItemOptions
                         {
                             PriceData = new SessionLineItemPriceDataOptions
@@ -472,7 +541,7 @@ namespace SnaelyFashion_WebAPI.Controllers
                                 Currency = "usd",
                                 ProductData = new SessionLineItemPriceDataProductDataOptions
                                 {
-                                    Name = item.ProductName
+                                    Name = productinfo.Title
                                 }
                             },
                             Quantity = item.Count
@@ -486,11 +555,16 @@ namespace SnaelyFashion_WebAPI.Controllers
                     _unitOfWork.OrderHeader.UpdateStripePaymentIDAsync(createdorderheader.Id, session.Id, session.PaymentIntentId);
                     _unitOfWork.Save();
                     Response.Headers.Add("Location", session.Url);
-
+                    var result = new StripeSummeryResponseDTO
+                    { 
+                        CheckoutURL = session.Url,
+                        OrderHeaderID = shoppingCartDTO.OrderHeaderId
+                    };
+                        
                     
                     _response.IsSuccess = true;
-                    //_response.Result = shoppingCartDTO;
-                    _response.Result = session.Url;
+                    //_response.Result = orderheaderDetailsDTO;
+                    _response.Result = result;
                     _response.StatusCode = System.Net.HttpStatusCode.SeeOther;
                 }
                 if (PaymentMethod == SD.PaymentMethod_Cash)
@@ -514,7 +588,7 @@ namespace SnaelyFashion_WebAPI.Controllers
         }
 
 
-        [HttpDelete("{OrderHeaderId:int}", Name = "OrderConfirmation")]
+        [HttpPut("{OrderHeaderId:int}", Name = "OrderConfirmation")]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
