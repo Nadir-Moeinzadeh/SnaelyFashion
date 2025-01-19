@@ -558,10 +558,11 @@ includeProperties: "Product");
                     var result = new StripeSummeryResponseDTO
                     { 
                         CheckoutURL = session.Url,
-                        OrderHeaderID = shoppingCartDTO.OrderHeaderId
+                        OrderHeaderID = shoppingCartDTO.OrderHeaderId,
+                        SessionID = session.Id,
                     };
                         
-                    
+                   
                     _response.IsSuccess = true;
                     //_response.Result = orderheaderDetailsDTO;
                     _response.Result = result;
@@ -594,18 +595,20 @@ includeProperties: "Product");
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<APIResponse> OrderConfirmation(int OrderHeaderId)
+        public async Task<APIResponse> OrderConfirmation(int OrderHeaderId,string? sessionID)
         {
             try
             {
 
                 OrderHeader orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == OrderHeaderId, includeProperties: "ApplicationUser");
-                if (orderHeader.PaymentStatus != SD.PaymentMethod_Cash)
-                {
+                if (sessionID !=null && sessionID  !=""&& sessionID!= "string") 
+                { 
+                  if (orderHeader.PaymentStatus != SD.PaymentMethod_Cash)
+                  {
 
 
                     var service = new SessionService();
-                    Session session = service.Get(orderHeader.SessionId);
+                    Session session = service.Get(sessionID);
 
                     if (session.PaymentStatus.ToLower() == "paid")
                     {
@@ -615,6 +618,7 @@ includeProperties: "Product");
                     }
                     HttpContext.Session.Clear();
 
+                  }
                 }
 
                 _emailSender.SendEmailAsync(orderHeader.ApplicationUser.Email, "New Order - SnaelyFashion",

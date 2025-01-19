@@ -9,6 +9,8 @@ namespace SnaelyFashion_Models.DTO.Summary_
     public class StripeSummeryResponseDTO
     {
         public string? CheckoutURL { get; set; }
+
+        public string? SessionID { get; set; }
         public int? OrderHeaderID { get; set; }
     }
 }
