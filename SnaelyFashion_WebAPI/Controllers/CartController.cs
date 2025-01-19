@@ -601,8 +601,7 @@ includeProperties: "Product");
             {
 
                 OrderHeader orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == OrderHeaderId, includeProperties: "ApplicationUser");
-                if (sessionID !=null && sessionID  !=""&& sessionID!= "string") 
-                { 
+               
                   if (orderHeader.PaymentStatus != SD.PaymentMethod_Cash)
                   {
 
@@ -619,7 +618,7 @@ includeProperties: "Product");
                     HttpContext.Session.Clear();
 
                   }
-                }
+                
 
                 _emailSender.SendEmailAsync(orderHeader.ApplicationUser.Email, "New Order - SnaelyFashion",
                  $"<p>New Order Created - {orderHeader.Id}</p>");
