@@ -5,8 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using SendGrid.Helpers.Mail;
 using SnaelyFashion_Models;
 using SnaelyFashion_Models.DTO.Blogposts_;
+using SnaelyFashion_Models.DTO.Category_;
 using SnaelyFashion_Models.DTO.Product_;
 using SnaelyFashion_Models.DTO.Review_;
+using SnaelyFashion_Models.DTO.SubCategory_;
 using SnaelyFashion_Utility;
 using SnaelyFashion_WebAPI.DataAccess.Data;
 using SnaelyFashion_WebAPI.DataAccess.Repository.IRepository;
@@ -93,7 +95,87 @@ namespace SnaelyFashion_WebAPI.Controllers
 
 
 
+        [HttpGet("GetAllCategories")]
+        [ResponseCache(CacheProfileName = "Default30")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<APIResponse>> GetAllCategories()
+        {
+            try
+            {
+                var categories = await _unitOfWork.Category.GetAllAsync();
 
+                var categorylist = new List<CategoryDTO>();
+
+                foreach (var category in categories)
+                {
+
+                    var categoryDTO = new CategoryDTO { Id = category.Id, Name = category.Name };
+
+
+
+                  
+                    categorylist.Add(categoryDTO);
+
+
+                }
+
+                _response.Result = categorylist;
+
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+
+        }
+
+
+        [HttpGet("GetAllSubCategories")]
+        [ResponseCache(CacheProfileName = "Default30")]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<APIResponse>> GetAllSubCategories()
+        {
+            try
+            {
+                var subcategories = await _unitOfWork.SubCategory.GetAllAsync(includeProperties:"Category");
+
+                var subcategorylist = new List<SubCategoryDTO>();
+
+                foreach (var subcategory in subcategories)
+                {
+
+                    var subcategoryDTO = new SubCategoryDTO { Id = subcategory.Id,SubCategoryName=subcategory.SubCategoryName,CategoryId=subcategory.CategoryId,CategoryName=subcategory.Category.Name };
+
+                    subcategorylist.Add(subcategoryDTO);
+
+
+                }
+
+                _response.Result = subcategorylist;
+
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages
+                     = new List<string>() { ex.ToString() };
+            }
+            return _response;
+
+        }
 
 
 

@@ -38,7 +38,7 @@ namespace SnaelyFashion_WebAPI.Controllers
         {
             var loginResponse = await _userRepo.Login(model);
 
-            var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
+            var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, lockoutOnFailure: false);
 
             if (result.Succeeded) 
             {

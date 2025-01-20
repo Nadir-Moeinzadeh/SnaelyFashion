@@ -17,6 +17,6 @@ namespace SnaelyFashion_Models.DTO.ApplicationUser_
         public string Password { get; set; }
 
         [Display(Name = "Remember Me")]
-        public bool RememberMe { get; set; } = false;
+        public bool RememberMe { get; set; }
     }
 }

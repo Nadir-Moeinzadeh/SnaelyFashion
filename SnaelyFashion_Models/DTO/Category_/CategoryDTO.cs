@@ -19,9 +19,7 @@ namespace SnaelyFashion_Models.DTO.Category_
         
         
 
-        public List<SubCategory>? SubCategories { get; set; }
-
-        public List<Product>? Products { get; set; }
+     
 
     }
 }

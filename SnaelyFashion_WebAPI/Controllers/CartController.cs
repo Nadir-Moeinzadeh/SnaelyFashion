@@ -621,7 +621,7 @@ includeProperties: "Product");
                 
 
                 _emailSender.SendEmailAsync(orderHeader.ApplicationUser.Email, "New Order - SnaelyFashion",
-                 $"<p>New Order Created - {orderHeader.Id}</p>");
+                 $"<p>New Order Created - {orderHeader.Id}</p> <p>Thanks For Your Purchase</p>");
 
                 List<ShoppingCart> shoppingCarts = _unitOfWork.ShoppingCart
                 .GetAll(u => u.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
