@@ -521,10 +521,9 @@ includeProperties: "Product");
                     var domain = Request.Scheme + "://" + Request.Host.Value + "/";
                     var options = new SessionCreateOptions
                     {
-                        //SuccessUrl = domain + $"www.google.com",
-                        //CancelUrl = domain + "www.youtube.com",
-                        SuccessUrl =  $"{domain}www.google.com",
-                        CancelUrl =  $"{domain}www.youtube.com",
+                        SuccessUrl = domain + $"cart/OrderConfirmation?id={shoppingCartDTO.OrderHeaderId}",
+                        CancelUrl = domain + $"cart/index",
+                        
                         LineItems = new List<SessionLineItemOptions>(),
                         Mode = "payment",
                     };
@@ -595,20 +594,22 @@ includeProperties: "Product");
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<APIResponse> OrderConfirmation(int OrderHeaderId,string? sessionID)
+        public  APIResponse OrderConfirmation([FromRoute] int OrderHeaderId,[FromBody]string? sessionID)
         {
             try
             {
 
                 OrderHeader orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == OrderHeaderId, includeProperties: "ApplicationUser");
-               
-                  if (orderHeader.PaymentStatus != SD.PaymentMethod_Cash)
+                List<ShoppingCart> shoppingCarts = _unitOfWork.ShoppingCart
+                .GetAll(u => u.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
+                 
+                if (orderHeader.PaymentStatus != SD.PaymentMethod_Cash)
                   {
 
 
                     var service = new SessionService();
                     Session session = service.Get(sessionID);
-
+                    
                     if (session.PaymentStatus.ToLower() == "paid")
                     {
                         _unitOfWork.OrderHeader.UpdateStripePaymentIDAsync(OrderHeaderId, session.Id, session.PaymentIntentId);
@@ -623,8 +624,7 @@ includeProperties: "Product");
                 _emailSender.SendEmailAsync(orderHeader.ApplicationUser.Email, "New Order - SnaelyFashion",
                  $"<p>New Order Created - {orderHeader.Id}</p> <p>Thanks For Your Purchase</p>");
 
-                List<ShoppingCart> shoppingCarts = _unitOfWork.ShoppingCart
-                .GetAll(u => u.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
+               
 
                 _unitOfWork.ShoppingCart.RemoveRange(shoppingCarts);
                 _unitOfWork.Save();
@@ -638,7 +638,7 @@ includeProperties: "Product");
             }
 
             _response.IsSuccess = true;
-            _response.Result = $"Order Confirmed {OrderHeaderId}";
+            _response.Result = $"Order Confirmed: {OrderHeaderId}";
             _response.StatusCode = System.Net.HttpStatusCode.OK;
 
             return _response;
